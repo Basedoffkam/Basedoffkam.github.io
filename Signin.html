@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  PeopleWorks sign-in bridge. Roblox doesn't accept workers.dev addresses as OAuth redirect URLs, so
+  Roblox sends people here (a GitHub Pages address it does accept), and this page immediately passes the
+  one-time sign-in result on to PeopleWorks. It forwards only Roblox's own answer (code, state, or error),
+  stores nothing, loads nothing else, and sends no referrer. The code is useless without the private sign-in
+  cookie PeopleWorks set in the same browser, and the Roblox secret that only PeopleWorks has.
+  See docs/going-live.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Signing in to PeopleWorks…</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, sans-serif; background: #fff7ed; color: #431407; }
+    p { font-size: 1.05rem; }
+    a { color: #c2410c; }
+  </style>
+</head>
+<body>
+  <main>
+    <p>Signing you in to PeopleWorks…</p>
+    <noscript><p>Please turn on JavaScript to finish signing in.</p></noscript>
+  </main>
+  <script>
+    (function () {
+      var target = "https://peopleworks.basedoffkam.workers.dev/v1/auth/roblox/callback";
+      var incoming = new URLSearchParams(window.location.search);
+      var outgoing = new URLSearchParams();
+      ["code", "state", "error", "error_description"].forEach(function (key) {
+        var value = incoming.get(key);
+        if (value !== null && value.length <= 2048) outgoing.set(key, value);
+      });
+      window.location.replace(target + (outgoing.toString() ? "?" + outgoing.toString() : ""));
+    })();
+  </script>
+</body>
+</html>
